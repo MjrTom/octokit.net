@@ -23,7 +23,10 @@ namespace Octokit
         public static Uri FormatUri(this string pattern, params object[] args)
         {
             Ensure.ArgumentNotNullOrEmptyString(pattern, nameof(pattern));
-            var uriString = string.Format(CultureInfo.InvariantCulture, pattern, args).EncodeSharp();
+            
+            // Use a predefined format string to avoid uncontrolled format strings
+            var sanitizedArgs = Array.ConvertAll(args, arg => WebUtility.UrlEncode(arg?.ToString()));
+            var uriString = $"{pattern}{string.Join("/", sanitizedArgs)}".EncodeSharp();
 
             return new Uri(uriString, UriKind.Relative);
         }
